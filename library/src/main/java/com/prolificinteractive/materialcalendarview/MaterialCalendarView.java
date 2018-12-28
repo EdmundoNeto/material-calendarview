@@ -15,6 +15,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -26,6 +27,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.prolificinteractive.materialcalendarview.format.ArrayWeekDayFormatter;
 import com.prolificinteractive.materialcalendarview.format.DayFormatter;
@@ -237,11 +239,27 @@ public class MaterialCalendarView extends ViewGroup {
   private boolean allowClickDaysOutsideCurrentMonth = true;
   private DayOfWeek firstDayOfWeek;
   private boolean showWeekDays;
+  private boolean showDays;
+  private CardView cardView;
 
   private State state;
 
   public MaterialCalendarView(Context context) {
     this(context, null);
+  }
+
+  private void cardview(Context context){
+      MarginLayoutParams layoutParams = new MarginLayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT);
+    layoutParams.setMargins(5, 5, 5, 5);
+
+    cardView = new CardView(context);
+    cardView.setRadius(5);
+    cardView.setContentPadding(5,5,5,5);
+    cardView.setLayoutParams(layoutParams);
+    cardView.setCardElevation(10);
+
   }
 
   public MaterialCalendarView(Context context, AttributeSet attrs) {
@@ -261,6 +279,7 @@ public class MaterialCalendarView extends ViewGroup {
         (LayoutInflater) getContext().getSystemService(Service.LAYOUT_INFLATER_SERVICE);
     final View content = inflater.inflate(R.layout.calendar_view, null, false);
 
+    cardview(context);
     topbar = content.findViewById(R.id.header);
     buttonPast = content.findViewById(R.id.previous);
     title = content.findViewById(R.id.month_name);
@@ -273,9 +292,12 @@ public class MaterialCalendarView extends ViewGroup {
     titleChanger = new TitleChanger(title);
 
     pager.setOnPageChangeListener(pageChangeListener);
+    pager.setBackground(context.getResources().getDrawable(R.drawable.shape_background));
     pager.setPageTransformer(false, new ViewPager.PageTransformer() {
       @Override
       public void transformPage(View page, float position) {
+//        page.setBackground(context.getResources().getDrawable(R.drawable.shape_background));
+
         position = (float) Math.sqrt(1 - Math.abs(position));
         page.setAlpha(position);
       }
@@ -306,11 +328,13 @@ public class MaterialCalendarView extends ViewGroup {
       }
 
       showWeekDays = a.getBoolean(R.styleable.MaterialCalendarView_mcv_showWeekDays, true);
+      showDays = a.getBoolean(R.styleable.MaterialCalendarView_mcv_showDays, true);
 
       newState()
           .setFirstDayOfWeek(firstDayOfWeek)
           .setCalendarDisplayMode(CalendarMode.values()[calendarModeIndex])
           .setShowWeekDays(showWeekDays)
+          .setShowDays(showDays)
           .commit();
 
       setSelectionMode(a.getInteger(
@@ -408,7 +432,7 @@ public class MaterialCalendarView extends ViewGroup {
 
     if (isInEditMode()) {
       removeView(pager);
-      MonthView monthView = new MonthView(this, currentMonth, getFirstDayOfWeek(), true);
+      MonthView monthView = new MonthView(this, currentMonth, getFirstDayOfWeek(), true, true);
       monthView.setSelectionColor(getSelectionColor());
       monthView.setDateTextAppearance(adapter.getDateTextAppearance());
       monthView.setWeekDayTextAppearance(adapter.getWeekDayTextAppearance());
@@ -424,6 +448,7 @@ public class MaterialCalendarView extends ViewGroup {
     pager.setOffscreenPageLimit(1);
     int tileHeight = showWeekDays ? calendarMode.visibleWeeksCount + DAY_NAMES_ROW
                                   : calendarMode.visibleWeeksCount;
+
     addView(pager, new LayoutParams(tileHeight));
   }
 
@@ -989,6 +1014,13 @@ public class MaterialCalendarView extends ViewGroup {
 
   /**
    * @return true if the week days names are shown
+   */
+  public boolean isShowDays() {
+    return showDays;
+  }
+
+  /**
+   * @return true if the days  are shown
    */
   public boolean isShowWeekDays() {
     return showWeekDays;
@@ -1791,6 +1823,7 @@ public class MaterialCalendarView extends ViewGroup {
     private final CalendarDay maxDate;
     private final boolean cacheCurrentPosition;
     private final boolean showWeekDays;
+    private final boolean showDays;
 
     private State(final StateBuilder builder) {
       calendarMode = builder.calendarMode;
@@ -1799,6 +1832,7 @@ public class MaterialCalendarView extends ViewGroup {
       maxDate = builder.maxDate;
       cacheCurrentPosition = builder.cacheCurrentPosition;
       showWeekDays = builder.showWeekDays;
+      showDays = builder.showDays;
     }
 
     /**
@@ -1816,6 +1850,7 @@ public class MaterialCalendarView extends ViewGroup {
     private CalendarDay minDate = null;
     private CalendarDay maxDate = null;
     private boolean showWeekDays;
+    private boolean showDays;
 
     public StateBuilder() {
       calendarMode = CalendarMode.MONTHS;
@@ -1830,6 +1865,7 @@ public class MaterialCalendarView extends ViewGroup {
       maxDate = state.maxDate;
       cacheCurrentPosition = state.cacheCurrentPosition;
       showWeekDays = state.showWeekDays;
+      showDays = state.showDays;
     }
 
     /**
@@ -1896,6 +1932,13 @@ public class MaterialCalendarView extends ViewGroup {
       this.showWeekDays = showWeekDays;
       return this;
     }
+    /**
+     * @param showDays true to show days
+     */
+    public StateBuilder setShowDays(boolean showDays) {
+      this.showDays = showDays;
+      return this;
+    }
 
     /**
      * Use this method to enable saving the current position when switching
@@ -1957,6 +2000,7 @@ public class MaterialCalendarView extends ViewGroup {
     minDate = state.minDate;
     maxDate = state.maxDate;
     showWeekDays = state.showWeekDays;
+    showDays = state.showDays;
 
     // Recreate adapter
     final CalendarPagerAdapter<?> newAdapter;
@@ -1976,6 +2020,7 @@ public class MaterialCalendarView extends ViewGroup {
       adapter = adapter.migrateStateAndReturn(newAdapter);
     }
     adapter.setShowWeekDays(showWeekDays);
+    adapter.setShowDays(showDays);
     pager.setAdapter(adapter);
     setRangeDates(minDate, maxDate);
 

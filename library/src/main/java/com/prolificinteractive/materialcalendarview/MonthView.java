@@ -16,8 +16,9 @@ import org.threeten.bp.LocalDate;
       @NonNull final MaterialCalendarView view,
       final CalendarDay month,
       final DayOfWeek firstDayOfWeek,
-      final boolean showWeekDays) {
-    super(view, month, firstDayOfWeek, showWeekDays);
+      final boolean showWeekDays,
+      final boolean showDays) {
+    super(view, month, firstDayOfWeek, showWeekDays, showDays);
   }
 
   @Override protected void buildDayViews(
