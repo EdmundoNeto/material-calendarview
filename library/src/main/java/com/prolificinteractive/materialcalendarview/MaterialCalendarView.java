@@ -241,6 +241,7 @@ public class MaterialCalendarView extends ViewGroup {
   private boolean showWeekDays;
   private boolean showDays;
   private CardView cardView;
+  private int paddingTop, paddingRight, paddingBottom, paddingLeft;
 
   private State state;
 
@@ -328,6 +329,10 @@ public class MaterialCalendarView extends ViewGroup {
 
       showWeekDays = a.getBoolean(R.styleable.MaterialCalendarView_mcv_showWeekDays, true);
       showDays = a.getBoolean(R.styleable.MaterialCalendarView_mcv_showDays, true);
+      paddingBottom = a.getInt(R.styleable.MaterialCalendarView_mcv_paddingBottom, 0);
+      paddingTop = a.getInt(R.styleable.MaterialCalendarView_mcv_paddingTop, 0);
+      paddingLeft = a.getInt(R.styleable.MaterialCalendarView_mcv_paddingLeft, 0);
+      paddingRight = a.getInt(R.styleable.MaterialCalendarView_mcv_paddingRight, 0);
 
       newState()
           .setFirstDayOfWeek(firstDayOfWeek)
@@ -444,11 +449,17 @@ public class MaterialCalendarView extends ViewGroup {
   }
 
   private void setupChildren() {
-    addView(topbar);
+    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT);
+    layoutParams.setMargins(0, 0, 0, 80);
+    topbar.setLayoutParams(layoutParams);
 
+    addView(topbar);
 
     pager.setId(R.id.mcv_pager);
     pager.setOffscreenPageLimit(1);
+    pager.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
     int tileHeight = showWeekDays ? calendarMode.visibleWeeksCount + DAY_NAMES_ROW
                                   : calendarMode.visibleWeeksCount;
 
