@@ -446,12 +446,14 @@ public class MaterialCalendarView extends ViewGroup {
   private void setupChildren() {
     addView(topbar);
 
+
     pager.setId(R.id.mcv_pager);
     pager.setOffscreenPageLimit(1);
     int tileHeight = showWeekDays ? calendarMode.visibleWeeksCount + DAY_NAMES_ROW
                                   : calendarMode.visibleWeeksCount;
 
     addView(pager, new LayoutParams(tileHeight));
+
   }
 
   private void updateUi() {
@@ -1093,11 +1095,22 @@ public class MaterialCalendarView extends ViewGroup {
     requestLayout();
   }
 
+  public void setPagerVisible(boolean visible) {
+    pager.setVisibility(visible ? View.VISIBLE : View.GONE);
+    requestLayout();
+  }
+
   /**
    * @return true if the topbar is visible
    */
   public boolean getTopbarVisible() {
     return topbar.getVisibility() == View.VISIBLE;
+  }
+  /**
+   * @return true if the topbar is visible
+   */
+  public boolean getPagerVisible() {
+    return pager.getVisibility() == View.VISIBLE;
   }
 
   /**
@@ -1119,6 +1132,7 @@ public class MaterialCalendarView extends ViewGroup {
     ss.selectedDates = getSelectedDates();
     ss.selectionMode = getSelectionMode();
     ss.topbarVisible = getTopbarVisible();
+    ss.pagerVisible = getPagerVisible();
     ss.dynamicHeightEnabled = mDynamicHeightEnabled;
     ss.currentMonth = currentMonth;
     ss.cacheCurrentPosition = state.cacheCurrentPosition;
@@ -1142,6 +1156,7 @@ public class MaterialCalendarView extends ViewGroup {
       setDateSelected(calendarDay, true);
     }
     setTopbarVisible(ss.topbarVisible);
+    setPagerVisible(ss.pagerVisible);
     setSelectionMode(ss.selectionMode);
     setDynamicHeightEnabled(ss.dynamicHeightEnabled);
     setCurrentDate(ss.currentMonth);
@@ -1177,6 +1192,7 @@ public class MaterialCalendarView extends ViewGroup {
     CalendarDay maxDate = null;
     List<CalendarDay> selectedDates = new ArrayList<>();
     boolean topbarVisible = true;
+    boolean pagerVisible = true;
     int selectionMode = SELECTION_MODE_SINGLE;
     boolean dynamicHeightEnabled = false;
     CalendarDay currentMonth = null;
@@ -1195,6 +1211,7 @@ public class MaterialCalendarView extends ViewGroup {
       out.writeParcelable(maxDate, 0);
       out.writeTypedList(selectedDates);
       out.writeInt(topbarVisible ? 1 : 0);
+      out.writeInt(pagerVisible ? 1 : 0);
       out.writeInt(selectionMode);
       out.writeInt(dynamicHeightEnabled ? 1 : 0);
       out.writeParcelable(currentMonth, 0);
@@ -1221,6 +1238,7 @@ public class MaterialCalendarView extends ViewGroup {
       maxDate = in.readParcelable(loader);
       in.readTypedList(selectedDates, CalendarDay.CREATOR);
       topbarVisible = in.readInt() == 1;
+      pagerVisible = in.readInt() == 1;
       selectionMode = in.readInt();
       dynamicHeightEnabled = in.readInt() == 1;
       currentMonth = in.readParcelable(loader);
@@ -1582,7 +1600,8 @@ public class MaterialCalendarView extends ViewGroup {
 
     final int weekCount = getWeekCountBasedOnMode();
 
-    final int viewTileHeight = getTopbarVisible() ? (weekCount + 1) : weekCount;
+    final int viewTileHeight = getPagerVisible() ? (getTopbarVisible() ? (weekCount + 1) : weekCount) : 1;
+
 
     //Calculate independent tile sizes for later
     int desiredTileWidth = desiredWidth / DEFAULT_DAYS_IN_WEEK;
@@ -1636,6 +1655,8 @@ public class MaterialCalendarView extends ViewGroup {
     //Calculate our size based off our measured tile size
     int measuredWidth = measureTileWidth * DEFAULT_DAYS_IN_WEEK;
     int measuredHeight = measureTileHeight * viewTileHeight;
+//    if(! showDays ) measuredHeight = viewTileHeight;
+
 
     //Put padding back in from when we took it away
     measuredWidth += getPaddingLeft() + getPaddingRight();
