@@ -292,7 +292,6 @@ public class MaterialCalendarView extends ViewGroup {
     titleChanger = new TitleChanger(title);
 
     pager.setOnPageChangeListener(pageChangeListener);
-    pager.setBackground(context.getResources().getDrawable(R.drawable.shape_background));
     pager.setPageTransformer(false, new ViewPager.PageTransformer() {
       @Override
       public void transformPage(View page, float position) {
@@ -336,6 +335,9 @@ public class MaterialCalendarView extends ViewGroup {
           .setShowWeekDays(showWeekDays)
           .setShowDays(showDays)
           .commit();
+
+      if(showDays) pager.setBackground(context.getResources().getDrawable(R.drawable.shape_background));
+
 
       setSelectionMode(a.getInteger(
           R.styleable.MaterialCalendarView_mcv_selectionMode,
