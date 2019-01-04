@@ -37,6 +37,8 @@ public class BasicActivity extends AppCompatActivity
     widget.setOnDateChangedListener(this);
     widget.setOnDateLongClickListener(this);
     widget.setOnMonthChangedListener(this);
+//    widget.setPagerVisible(false);
+
 
     //Setup initial text
     textView.setText("No Selection");

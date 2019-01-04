@@ -240,6 +240,7 @@ public class MaterialCalendarView extends ViewGroup {
   private DayOfWeek firstDayOfWeek;
   private boolean showWeekDays;
   private boolean showDays;
+  private boolean showShapeBackground;
   private CardView cardView;
   private int paddingTop, paddingRight, paddingBottom, paddingLeft;
 
@@ -333,6 +334,7 @@ public class MaterialCalendarView extends ViewGroup {
       paddingTop = a.getInt(R.styleable.MaterialCalendarView_mcv_paddingTop, 0);
       paddingLeft = a.getInt(R.styleable.MaterialCalendarView_mcv_paddingLeft, 0);
       paddingRight = a.getInt(R.styleable.MaterialCalendarView_mcv_paddingRight, 0);
+      showShapeBackground = a.getBoolean(R.styleable.MaterialCalendarView_mcv_showShapeBackground, false);
 
       newState()
           .setFirstDayOfWeek(firstDayOfWeek)
@@ -341,7 +343,7 @@ public class MaterialCalendarView extends ViewGroup {
           .setShowDays(showDays)
           .commit();
 
-      if(showDays) pager.setBackground(context.getResources().getDrawable(R.drawable.shape_background));
+      if(showShapeBackground) pager.setBackground(context.getResources().getDrawable(R.drawable.shape_background));
 
 
       setSelectionMode(a.getInteger(
